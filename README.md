@@ -1,1 +1,1 @@
-# 3Dconfigurator
+# GT3RSconfigurator
