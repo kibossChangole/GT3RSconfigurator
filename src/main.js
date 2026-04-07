@@ -8,7 +8,7 @@ const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x050505);
 scene.fog = new THREE.Fog(0x050505, 20, 100);
 
-const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+const camera = new THREE.PerspectiveCamera(10, window.innerWidth / window.innerHeight, 0.1, 1000);
 camera.position.set(10, 4, 15);
 
 const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
@@ -30,6 +30,33 @@ controls.maxDistance = 20;
 const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
 scene.add(ambientLight);
 
+const hemiLight = new THREE.HemisphereLight(0xffffff, 0x080820, 0.1);
+scene.add(hemiLight);
+
+//rim light behind car
+const rimLight = new THREE.SpotLight(0xffffff, 100);
+rimLight.position.set(0, 5, -10); // Behind the car
+rimLight.lookAt(0, 0, 0);
+scene.add(rimLight);
+
+//rim light side of car
+const rimLight2 = new THREE.SpotLight(0xffffff, 400); 
+rimLight2.position.set(0, 1, 10); // To the right, above, and behind
+// Aim at the center where the car will be
+rimLight2.target.position.set(0, 0, 0);
+scene.add(rimLight2.target);
+
+// Shadows & Optics
+rimLight2.castShadow = true;
+rimLight2.angle = Math.PI / 6;
+rimLight2.penumbra = 0.6; // Softens the light falloff
+rimLight2.shadow.bias = -0.0001;
+
+scene.add(rimLight2);
+
+const rimlighthelper = new THREE.SpotLightHelper(rimLight2);
+//scene.add(rimlighthelper);
+
 const spotLight = new THREE.SpotLight(0xffffff, 200);
 spotLight.position.set(10, 15, 10);
 spotLight.castShadow = true;
@@ -48,8 +75,8 @@ scene.add(rectLight);
 // Load HDRI Environment for reflections
 new RGBELoader().load('https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/studio_small_08_1k.hdr', (texture) => {
     texture.mapping = THREE.EquirectangularReflectionMapping;
-    scene.environment = texture;
-    // scene.background = texture; // Keep it dark instead
+    //scene.environment = texture; //add texture
+     scene.background = texture; // Keep it dark instead
 });
 
 // --- Ground ---
@@ -64,6 +91,20 @@ const mesh = new THREE.Mesh(
 mesh.rotation.x = -Math.PI / 2;
 mesh.receiveShadow = true;
 scene.add(mesh);
+
+//--racing line
+const mesh2 = new THREE.Mesh(
+    new THREE.PlaneGeometry(50, 2),
+    new THREE.MeshStandardMaterial({ 
+        color: 0x780606,
+        roughness: 0.1,
+        metalness: 0.5
+    })
+);
+mesh2.rotation.x = -Math.PI / 2;
+mesh2.position.y = 0.01;
+mesh2.receiveShadow = true;
+scene.add(mesh2);
 
 // --- Car Model Loading ---
 let carModel;
