@@ -106,6 +106,8 @@ mesh2.position.y = 0.01;
 mesh2.receiveShadow = true;
 scene.add(mesh2);
 
+
+
 // --- Car Model Loading ---
 let carModel;
 let spoiler;
@@ -166,23 +168,31 @@ loader.load('/gt3rs.glb', (gltf) => {
     if (progressText) progressText.innerText = `Loading GT3RS: ${Math.round(percent)}%`;
 });
 
-// --- Configurator Functions ---
 window.changePaint = (hex) => {
     if (!carModel) return;
     const color = new THREE.Color(hex);
+    
     carModel.traverse((node) => {
-        if (node.isMesh && (
-            node.name.toLowerCase().includes('body') || 
-            node.name.toLowerCase().includes('paint') ||
-            node.name.toLowerCase().includes('carpaint')
-        )) {
-            // Apply high-quality paint material
-            node.material = new THREE.MeshStandardMaterial({
-                color: color,
-                metalness: 0.9,
-                roughness: 0.1,
-                envMapIntensity: 2
-            });
+        if (node.isMesh) {
+            const meshName = node.name.toLowerCase();
+            const matName = node.material.name.toLowerCase();
+            console.log("Mesh Name:", node.name, "| Material Name:", node.material.name);
+            if (
+           
+             
+                meshName.includes('boot011_0') 
+                 // 'boot011_0' uses 'coat', likely clearcoat paint
+            ) {
+                // To keep it from looking flat, use MeshPhysicalMaterial
+                node.material = new THREE.MeshPhysicalMaterial({
+                    color: color,
+                    metalness: 0.7,      // High metalness for reflections
+                    roughness: 0.2,       // Low roughness for a smooth look
+                    clearcoat: 1.0,       // Adds that shiny "top coat" layer
+                    clearcoatRoughness: 0.02,
+                    envMapIntensity: 0.5  // Boosts the HDRI reflections
+                });
+            }
         }
     });
 };
