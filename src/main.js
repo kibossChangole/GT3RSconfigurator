@@ -179,9 +179,9 @@ window.changePaint = (hex) => {
             console.log("Mesh Name:", node.name, "| Material Name:", node.material.name);
             if (
            
-             
+             // 'boot011_0' uses 'coat', likely clearcoat paint, exists from log
                 meshName.includes('boot011_0') 
-                 // 'boot011_0' uses 'coat', likely clearcoat paint
+           
             ) {
                 // To keep it from looking flat, use MeshPhysicalMaterial
                 node.material = new THREE.MeshPhysicalMaterial({
