@@ -272,3 +272,84 @@ footer p {
   .sidebar.left { display: none; }
   header { padding: 1.5rem; }
 }
+
+
+
+
+.model-select-wrapper {
+    margin-top: 30px;
+}
+
+.config-card {
+    position: relative;
+    
+    right: 20px;
+   
+    z-index: 100;
+    padding: 15px 20px;
+     background: var(--glass);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    font-family: 'Inter', sans-serif; /* Or any clean sans-serif */
+    width: 280px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+.config-card label {
+    display: block;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 10px;
+     margin-top: 20px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+}
+
+.select-wrapper {
+    position: relative;
+    display: flex;
+    margin-top: 20px;
+    align-items: center;
+}
+
+/* Custom Arrow Icon */
+.select-wrapper::after {
+    content: '▼';
+    font-size: 10px;
+    color: white;
+    position: absolute;
+    right: 15px;
+    pointer-events: none;
+    opacity: 0.5;
+}
+
+#model-select {
+    width: 100%;
+    appearance: none; /* Removes default browser styling */
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 12px 15px;
+    color: white;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    outline: none;
+}
+
+#model-select:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+#model-select:focus {
+    border-color: var(--accent-color);
+}
+
+/* Style for the options (Limited support in some browsers) */
+#model-select option {
+    background: #1a1a1a;
+    color: white;
+    padding: 10px;
+}
