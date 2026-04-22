@@ -13,6 +13,7 @@ const modelConfigs = {
   "/gle63.glb": { scale: 3.8, offset: 0, paintTargets: ['carPaint'] },
   "/2024lc250.glb": { scale: 4.0, offset: 0, paintTargets: ['CarPaint'] },
   "/rrsport2023.glb": { scale: 3.2, offset: 0, paintTargets: ['Car_Paint'] },
+  "/mbgls.glb": { scale: 4, offset: 0, paintTargets: ['gls_paint'] },
 
 
   
