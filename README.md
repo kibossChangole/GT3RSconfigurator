@@ -1,23 +1,3 @@
-Read [](file:///Users/kiboss.changole/GT3RSconfigurator/package.json)
-
-Read [](file:///Users/kiboss.changole/GT3RSconfigurator/index.html#1-1), lines 1 to 40
-
-Read [](file:///Users/kiboss.changole/GT3RSconfigurator/src/main.js#1-1), lines 1 to 40
-
-Read [](file:///Users/kiboss.changole/GT3RSconfigurator/src/counter.js)
-
-Read [](file:///Users/kiboss.changole/GT3RSconfigurator/src/style.css#1-1), lines 1 to 40
-
-Read [](file:///Users/kiboss.changole/GT3RSconfigurator/src/assets)
-
-Read [](file:///Users/kiboss.changole/GT3RSconfigurator/public)
-
-Read [](file:///Users/kiboss.changole/GT3RSconfigurator/src/main.js#41-41), lines 41 to 120
-
-Here’s a draft for your README, tailored for your GT3RS Configurator project, noting that assets are now hosted on Firebase Storage and highlighting the use of Three.js and Vite.
-
----
-
 # GT3RS Configurator
 
 A premium 3D car configurator for the Porsche 911 GT3RS and other models, built with [Three.js](https://threejs.org/) and [Vite](https://vitejs.dev/). This project features real-time 3D rendering, interactive controls, and a modern UI.
