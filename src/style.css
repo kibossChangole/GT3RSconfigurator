@@ -149,6 +149,8 @@ header * {
   border: 2px solid transparent;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .color-btn:hover {
@@ -271,6 +273,44 @@ footer p {
   .sidebar.right { right: auto; left: 0; }
   .sidebar.left { display: none; }
   header { padding: 1.5rem; }
+
+  .card {
+    padding: 1.1rem;
+    border-radius: 1.1rem;
+  }
+
+  .color-grid {
+    gap: 0.65rem;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .color-btn {
+    height: 34px;
+    padding: 0;
+    border-width: 1.5px;
+  }
+
+  .color-btn:hover {
+    transform: none;
+    border-color: transparent;
+  }
+
+  .color-btn:active {
+    transform: scale(0.96);
+    border-color: var(--text-white);
+  }
+}
+
+@media (max-width: 480px) {
+  .color-grid {
+    gap: 0.5rem;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+
+  .color-btn {
+    height: 30px;
+    border-width: 1px;
+  }
 }
 
 

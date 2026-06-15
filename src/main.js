@@ -6,16 +6,59 @@ import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader.js";
 // ---configs--//
 
 const modelConfigs = {
-  "/gt3rs.glb": { scale: 4, offset: 0, paintTargets: ["boot011_0"] },
-  "/g63.glb": {scale: 3.5, offset: 0, paintTargets: ["MMAT_CarPaint",],},
-  "/l405.glb": { scale: 4.2, offset: 0 },
-  "/maybach2022.glb": { scale: 4.5, offset: -0.8, rotateY: 1.5 },
-  "/gle63.glb": { scale: 3.8, offset: 0, paintTargets: ['carPaint'] },
-  "/2024lc250.glb": { scale: 4.0, offset: 0, paintTargets: ['CarPaint'] },
-  "/rrsport2023.glb": { scale: 3.2, offset: 0, paintTargets: ['Car_Paint'] },
-  "/mbgls.glb": { scale: 4, offset: 0, paintTargets: ['gls_paint'] },
-  "/mbs65.glb": { scale: 4, offset: 0, paintTargets: ['sw222_paint'] },
 
+  "https://pub-c58536414fec44b98896704ccc1ef351.r2.dev/gt3rs.glb": {
+    scale: 4,
+    offset: 0,
+    paintTargets: ["boot011_0"]
+  },
+
+  "https://pub-c58536414fec44b98896704ccc1ef351.r2.dev/g63.glb": {
+    scale: 3.5,
+    offset: 0,
+    paintTargets: ["MMAT_CarPaint"]
+  },
+
+  "https://pub-c58536414fec44b98896704ccc1ef351.r2.dev/l405.glb": {
+    scale: 4.2,
+    offset: 0
+  },
+
+  "https://pub-c58536414fec44b98896704ccc1ef351.r2.dev/maybach2022.glb": {
+    scale: 4.5,
+    offset: -0.8,
+    rotateY: 1.5
+  },
+
+  "https://pub-c58536414fec44b98896704ccc1ef351.r2.dev/gle63.glb": {
+    scale: 3.8,
+    offset: 0,
+    paintTargets: ["carPaint"]
+  },
+
+  "https://pub-c58536414fec44b98896704ccc1ef351.r2.dev/2024lc250.glb": {
+    scale: 4.0,
+    offset: 0,
+    paintTargets: ["CarPaint"]
+  },
+
+  "https://pub-c58536414fec44b98896704ccc1ef351.r2.dev/rrsport2023.glb": {
+    scale: 3.2,
+    offset: 0,
+    paintTargets: ["Car_Paint"]
+  },
+
+  "https://pub-c58536414fec44b98896704ccc1ef351.r2.dev/mbgls.glb": {
+    scale: 4,
+    offset: 0,
+    paintTargets: ["gls_paint"]
+  },
+
+  "https://pub-c58536414fec44b98896704ccc1ef351.r2.dev/mbs65.glb": {
+    scale: 4,
+    offset: 0,
+    paintTargets: ["sw222_paint"]
+  }
 
   
 };
@@ -23,8 +66,20 @@ const modelConfigs = {
 // --- Scene Setup ---
 const scene = new THREE.Scene();
 
+const MOBILE_BREAKPOINT = 768;
+const DESKTOP_FOV = 3;
+const MOBILE_FOV = 15;
+
+const isMobileDevice = () => window.innerWidth <= MOBILE_BREAKPOINT;
+const getTargetPixelRatio = () =>
+  Math.min(window.devicePixelRatio || 1, isMobileDevice() ? 1.25 : 1.75);
+const getShadowMapSize = () => (isMobileDevice() ? 512 : 1024);
+
+const getResponsiveFov = () =>
+  window.innerWidth <= MOBILE_BREAKPOINT ? MOBILE_FOV : DESKTOP_FOV;
+
 const camera = new THREE.PerspectiveCamera(
-  3,
+  getResponsiveFov(),
   window.innerWidth / window.innerHeight,
   0.1,
   1000,
@@ -36,11 +91,12 @@ const renderer = new THREE.WebGLRenderer({
   powerPreference: "high-performance",
 });
 renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setPixelRatio(getTargetPixelRatio());
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.2;
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.shadowMap.autoUpdate = false;
 document.body.appendChild(renderer.domElement);
 
 const controls = new OrbitControls(camera, renderer.domElement);
@@ -70,10 +126,10 @@ rimLight2.target.position.set(0, 0, 0);
 scene.add(rimLight2.target);
 
 // Shadows & Optics
-rimLight2.castShadow = true;
 rimLight2.angle = Math.PI / 6;
 rimLight2.penumbra = 0.6; // Softens the light falloff
 rimLight2.shadow.bias = -0.0001;
+rimLight2.castShadow = false;
 
 scene.add(rimLight2);
 
@@ -83,10 +139,10 @@ const rimlighthelper = new THREE.SpotLightHelper(rimLight2);
 const spotLight = new THREE.SpotLight(0xffffff, 200);
 spotLight.position.set(10, 15, 10);
 spotLight.castShadow = true;
-spotLight.shadow.mapSize.width = 2048;
-spotLight.shadow.mapSize.height = 2048;
+spotLight.shadow.mapSize.width = getShadowMapSize();
+spotLight.shadow.mapSize.height = getShadowMapSize();
 spotLight.shadow.camera.near = 1;
-spotLight.shadow.camera.far = 50;
+spotLight.shadow.camera.far = 35;
 spotLight.shadow.bias = -0.0001;
 scene.add(spotLight);
 
@@ -137,6 +193,28 @@ let spoiler;
 let currentModelPath = "/gt3rs.glb";
 const loader = new GLTFLoader();
 
+const getBasename = (path) => {
+  const cleanPath = String(path || "").split("?")[0].split("#")[0];
+  const parts = cleanPath.split("/");
+  return parts[parts.length - 1];
+};
+
+const getModelConfigEntry = (path) => {
+  const direct = modelConfigs[path];
+  if (direct) return { key: path, config: direct };
+
+  const requestedFile = getBasename(path).toLowerCase();
+  const matchKey = Object.keys(modelConfigs).find(
+    (key) => getBasename(key).toLowerCase() === requestedFile,
+  );
+
+  if (matchKey) {
+    return { key: matchKey, config: modelConfigs[matchKey] };
+  }
+
+  return { key: path, config: { scale: 4, offset: 0 } };
+};
+
 //lamp
 loader.load(
   "lamp.glb", // Replace with your file path
@@ -158,9 +236,9 @@ loader.load(
 );
 
 const loadVehicle = (path) => {
-  // 1. Get the specific config for this path
-  const config = modelConfigs[path] || { scale: 4, offset: 0 };
-  currentModelPath = path;
+  // Resolve config whether path is local (/car.glb) or full URL
+  const { key: resolvedConfigKey, config } = getModelConfigEntry(path);
+  currentModelPath = resolvedConfigKey;
 
   if (carModel) {
     scene.remove(carModel);
@@ -180,7 +258,6 @@ const loadVehicle = (path) => {
     path,
     (gltf) => {
       carModel = gltf.scene;
-      const config = modelConfigs[path] || { scale: 4, offset: 0 };
 
       // 1. Initial Scale (Normalize size)
       const box = new THREE.Box3().setFromObject(carModel);
@@ -213,6 +290,7 @@ const loadVehicle = (path) => {
       });
 
       scene.add(carModel);
+      renderer.shadowMap.needsUpdate = true;
 
       // Re-apply paint
       const currentColor =
@@ -241,7 +319,7 @@ window.changePaint = (hex) => {
   if (!carModel) return;
 
   // 1. Get the names allowed for the current car
-  const config = modelConfigs[currentModelPath];
+  const { config } = getModelConfigEntry(currentModelPath);
   const targets = config?.paintTargets || [];
 
   const color = new THREE.Color(hex);
@@ -249,37 +327,44 @@ window.changePaint = (hex) => {
   carModel.traverse((node) => {
     if (node.isMesh) {
       const meshName = node.name.toLowerCase();
-      const matName = node.material.name.toLowerCase();
-      console.log(
-        "Mesh Name:",
-        node.name,
-        "| Material Name:",
-        node.material.name,
-      );
+      if (!node.material) return;
 
-      // 2. Check if this mesh OR material is in our allowed list
-      const shouldPaint = targets.some(
-        (t) =>
-          meshName.includes(t.toLowerCase()) ||
-          matName.includes(t.toLowerCase()),
-      );
+      const materials = Array.isArray(node.material)
+        ? node.material
+        : [node.material];
 
-      if (shouldPaint) {
-        // If the material is already the right type, just update the color (better performance)
-        if (node.material.type === "MeshPhysicalMaterial") {
-          node.material.color = color;
-        } else {
-          // Otherwise, apply the high-end paint material
-          node.material = new THREE.MeshPhysicalMaterial({
-            color: color,
-            metalness: 0.7,
-            roughness: 0.2,
-            clearcoat: 1.0,
-            clearcoatRoughness: 0.02,
-            envMapIntensity: 0.8, // Slightly boosted for better shine
-          });
+      const updatedMaterials = materials.map((material) => {
+        const matName = (material.name || "").toLowerCase();
+
+        // 2. Check if this mesh OR material is in our allowed list
+        const shouldPaint = targets.some(
+          (t) =>
+            meshName.includes(t.toLowerCase()) ||
+            matName.includes(t.toLowerCase()),
+        );
+
+        if (!shouldPaint) return material;
+
+        // If the material is already the right type, update it in place
+        if (material.type === "MeshPhysicalMaterial") {
+          material.color.copy(color);
+          return material;
         }
-      }
+
+        // Otherwise, apply the high-end paint material
+        return new THREE.MeshPhysicalMaterial({
+          color: color,
+          metalness: 0.7,
+          roughness: 0.2,
+          clearcoat: 1.0,
+          clearcoatRoughness: 0.02,
+          envMapIntensity: 0.8, // Slightly boosted for better shine
+        });
+      });
+
+      node.material = Array.isArray(node.material)
+        ? updatedMaterials
+        : updatedMaterials[0];
     }
   });
 };
@@ -308,7 +393,15 @@ animate();
 
 // --- Resize handling ---
 window.addEventListener("resize", () => {
+  camera.fov = getResponsiveFov();
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setPixelRatio(getTargetPixelRatio());
+  const shadowMapSize = getShadowMapSize();
+  spotLight.shadow.mapSize.width = shadowMapSize;
+  spotLight.shadow.mapSize.height = shadowMapSize;
+  spotLight.shadow.map?.dispose();
+  spotLight.shadow.map = null;
+  renderer.shadowMap.needsUpdate = true;
 });
