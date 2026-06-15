@@ -190,7 +190,7 @@ scene.add(mesh2);
 
 let carModel;
 let spoiler;
-let currentModelPath = "/gt3rs.glb";
+let currentModelPath = "https://pub-c58536414fec44b98896704ccc1ef351.r2.dev/gt3rs.glb";
 const loader = new GLTFLoader();
 
 const getBasename = (path) => {
@@ -217,7 +217,7 @@ const getModelConfigEntry = (path) => {
 
 //lamp
 loader.load(
-  "lamp.glb", // Replace with your file path
+  "https://pub-c58536414fec44b98896704ccc1ef351.r2.dev/lamp.glb", // Replace with your file path
   (gltf) => {
     const lampmodel = gltf.scene;
     scene.add(lampmodel);
@@ -313,7 +313,7 @@ document.getElementById("model-select").addEventListener("change", (e) => {
 });
 
 // Initial load
-loadVehicle("/gt3rs.glb");
+loadVehicle("https://pub-c58536414fec44b98896704ccc1ef351.r2.dev/gt3rs.glb");
 
 window.changePaint = (hex) => {
   if (!carModel) return;
