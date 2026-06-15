@@ -70,6 +70,11 @@ const MOBILE_BREAKPOINT = 768;
 const DESKTOP_FOV = 3;
 const MOBILE_FOV = 15;
 
+const isMobileDevice = () => window.innerWidth <= MOBILE_BREAKPOINT;
+const getTargetPixelRatio = () =>
+  Math.min(window.devicePixelRatio || 1, isMobileDevice() ? 1.25 : 1.75);
+const getShadowMapSize = () => (isMobileDevice() ? 512 : 1024);
+
 const getResponsiveFov = () =>
   window.innerWidth <= MOBILE_BREAKPOINT ? MOBILE_FOV : DESKTOP_FOV;
 
@@ -86,11 +91,12 @@ const renderer = new THREE.WebGLRenderer({
   powerPreference: "high-performance",
 });
 renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setPixelRatio(getTargetPixelRatio());
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.2;
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.shadowMap.autoUpdate = false;
 document.body.appendChild(renderer.domElement);
 
 const controls = new OrbitControls(camera, renderer.domElement);
@@ -120,10 +126,10 @@ rimLight2.target.position.set(0, 0, 0);
 scene.add(rimLight2.target);
 
 // Shadows & Optics
-rimLight2.castShadow = true;
 rimLight2.angle = Math.PI / 6;
 rimLight2.penumbra = 0.6; // Softens the light falloff
 rimLight2.shadow.bias = -0.0001;
+rimLight2.castShadow = false;
 
 scene.add(rimLight2);
 
@@ -133,10 +139,10 @@ const rimlighthelper = new THREE.SpotLightHelper(rimLight2);
 const spotLight = new THREE.SpotLight(0xffffff, 200);
 spotLight.position.set(10, 15, 10);
 spotLight.castShadow = true;
-spotLight.shadow.mapSize.width = 2048;
-spotLight.shadow.mapSize.height = 2048;
+spotLight.shadow.mapSize.width = getShadowMapSize();
+spotLight.shadow.mapSize.height = getShadowMapSize();
 spotLight.shadow.camera.near = 1;
-spotLight.shadow.camera.far = 50;
+spotLight.shadow.camera.far = 35;
 spotLight.shadow.bias = -0.0001;
 scene.add(spotLight);
 
@@ -284,6 +290,7 @@ const loadVehicle = (path) => {
       });
 
       scene.add(carModel);
+      renderer.shadowMap.needsUpdate = true;
 
       // Re-apply paint
       const currentColor =
@@ -390,4 +397,11 @@ window.addEventListener("resize", () => {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setPixelRatio(getTargetPixelRatio());
+  const shadowMapSize = getShadowMapSize();
+  spotLight.shadow.mapSize.width = shadowMapSize;
+  spotLight.shadow.mapSize.height = shadowMapSize;
+  spotLight.shadow.map?.dispose();
+  spotLight.shadow.map = null;
+  renderer.shadowMap.needsUpdate = true;
 });
